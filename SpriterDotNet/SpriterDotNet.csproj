@@ -6,6 +6,22 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<OutputPath>..\bin\</OutputPath>
+	<IsPackable>true</IsPackable>
+	<Description>SpriterDotNet by loodakrawa repacked for .NET 8 by BlizzCrafter.</Description>
+	<Version>1.6.1</Version>
+	<Authors>BlizzCrafter, loodakrawa</Authors>
+	<PackageProjectUrl>https://github.com/BlizzCrafter/SpriterMonoGameNet8</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/BlizzCrafter/SpriterMonoGameNet8.git</RepositoryUrl>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<PackageId>SpriterDotNet.Repacked</PackageId>
+	<Copyright>Luka "loodakrawa" Sverko</Copyright>
   </PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+		<None Include="..\LICENSE.txt" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 </Project>
