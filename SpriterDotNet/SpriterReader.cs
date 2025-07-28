@@ -3,10 +3,8 @@
 // This software may be modified and distributed under the terms
 // of the zlib license.  See the LICENSE file for details.
 
-using System.Collections.Generic;
 using SpriterDotNet.Parsers;
 using SpriterDotNet.Preprocessors;
-using System;
 
 namespace SpriterDotNet
 {

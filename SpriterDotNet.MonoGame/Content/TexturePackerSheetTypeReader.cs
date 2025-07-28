@@ -4,7 +4,6 @@
 // of the zlib license.  See the LICENSE file for details.
 
 using Microsoft.Xna.Framework.Content;
-using System.IO;
 using System.Xml.Serialization;
 
 namespace SpriterDotNet.MonoGame.Content

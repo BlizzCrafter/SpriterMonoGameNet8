@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SpriterDotNet.MonoGame.Sprites;
 using SpriterDotNet.Providers;
-using System.Collections.Generic;
 
 namespace SpriterDotNet.MonoGame.Content
 {

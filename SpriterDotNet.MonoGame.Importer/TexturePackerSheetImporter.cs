@@ -4,97 +4,107 @@
 // of the zlib license.  See the LICENSE file for details.
 
 using Microsoft.Xna.Framework.Content.Pipeline;
-using System.IO;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-using System;
-using System.Xml.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Xml;
-using System.Reflection;
+using System.Xml.Serialization;
 
 namespace SpriterDotNet.MonoGame.Importer
 {
     [ContentImporter(".json", DisplayName = "TexturePacker Sheet Importer", DefaultProcessor = "PassThroughProcessor")]
     public class TexturePackerSheetImporter : ContentImporter<TexturePackerSheetWrapper>
     {
-		public override TexturePackerSheetWrapper Import(string filename, ContentImporterContext context)
+        public override TexturePackerSheetWrapper Import(string filename, ContentImporterContext context)
         {
             context.Logger.LogMessage("Importing Spriter Atlas file: {0}", filename);
             string jsonData = File.ReadAllText(filename);
 
-			TexturePackerSheetWrapper ret = new TexturePackerSheetWrapper();
+            TexturePackerSheetWrapper ret = new TexturePackerSheetWrapper();
 
-			SpriterAtlasJson atlasJson = JsonConvert.DeserializeObject<SpriterAtlasJson>(jsonData, new RectangleConverter());
-			TexturePackerSheet atlas = new TexturePackerSheet();
-			atlasJson.Fill(atlas);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new FramesJsonConverter(), new BooleanConverter() }
+            };
 
-			XmlSerializer serializer = new XmlSerializer(typeof(TexturePackerSheet));
+            SpriterAtlasJson atlasJson = JsonSerializer.Deserialize<SpriterAtlasJson>(jsonData, options);
+            TexturePackerSheet atlas = new TexturePackerSheet();
+            atlasJson.Fill(atlas);
 
-			using(StringWriter sww = new StringWriter())
-			using(XmlWriter writer = XmlWriter.Create(sww))
-			{
-				serializer.Serialize(writer, atlas);
-				ret.AtlasData = sww.ToString();
-			}
+            XmlSerializer serializer = new XmlSerializer(typeof(TexturePackerSheet));
 
-			return ret;
+            using (StringWriter sww = new StringWriter())
+            using (XmlWriter writer = XmlWriter.Create(sww))
+            {
+                serializer.Serialize(writer, atlas);
+                ret.AtlasData = sww.ToString();
+            }
+
+            return ret;
         }
     }
 
-	public class SpriterAtlasJson
-	{
-		public FramesJson Frames { get; set; }
-		public Meta Meta { get; set; }
+    public class SpriterAtlasJson
+    {
+        public FramesJson Frames { get; set; }
+        public Meta Meta { get; set; }
 
-		public void Fill(TexturePackerSheet atlas)
-		{
-			atlas.Meta = Meta;
-			atlas.ImageInfos = new List<ImageInfo>();
+        public void Fill(TexturePackerSheet atlas)
+        {
+            atlas.Meta = Meta;
+            atlas.ImageInfos = new List<ImageInfo>();
 
-			foreach(var entry in Frames.ImageInfos)
-			{
-				ImageInfo info = entry.Value;
-				info.Name = entry.Key;
-				atlas.ImageInfos.Add(info);
-			}
-		}
-	}
+            if (Frames?.ImageInfos != null)
+            {
+                foreach (var entry in Frames.ImageInfos)
+                {
+                    ImageInfo info = entry.Value;
+                    info.Name = entry.Key;
+                    atlas.ImageInfos.Add(info);
+                }
+            }
+        }
+    }
 
-	public class FramesJson
-	{
-		public Dictionary<string, ImageInfo> ImageInfos { get; set; }
-	}
+    public class FramesJson
+    {
+        public Dictionary<string, ImageInfo> ImageInfos { get; set; }
+    }
 
-	public class RectangleConverter : CustomConverter<FramesJson>
-	{
-		protected override object CreateObject(JsonReader reader, JsonSerializer serializer)
-		{
-			Dictionary<string, ImageInfo> values = serializer.Deserialize<Dictionary<string, ImageInfo>>(reader);
-			return new FramesJson { ImageInfos = values };
-		}
-	}
+    public class FramesJsonConverter : JsonConverter<FramesJson>
+    {
+        public override FramesJson Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var dict = JsonSerializer.Deserialize<Dictionary<string, ImageInfo>>(ref reader, options);
+            return new FramesJson { ImageInfos = dict };
+        }
 
-	public abstract class CustomConverter<T> : JsonConverter
-	{
-		public override bool CanWrite { get { return false; } }
-		public override bool CanRead { get { return true; } }
+        public override void Write(Utf8JsonWriter writer, FramesJson value, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException();
+        }
+    }
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-		{
-			throw new NotSupportedException();
-		}
+    public class BooleanConverter : JsonConverter<bool>
+    {
+        public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            string value = reader.GetString();
+            string chkValue = value.ToLower();
+            if (chkValue.Equals("true") || chkValue.Equals("yes") || chkValue.Equals("1"))
+            {
+                return true;
+            }
+            if (chkValue.Equals("false") || chkValue.Equals("no") || chkValue.Equals("0"))
+            {
+                return false;
+            }
+            throw new JsonException();
+        }
 
-		public override bool CanConvert(Type objectType)
-		{
-			return typeof(T).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
-		}
-
-		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-		{
-			if (reader.TokenType == JsonToken.Null) return null;
-			return CreateObject(reader, serializer);
-		}
-
-		protected abstract object CreateObject(JsonReader reader, JsonSerializer serializer);
-	}
+        public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString());
+        }
+    }
 }

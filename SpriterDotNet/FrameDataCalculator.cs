@@ -4,7 +4,6 @@
 // of the zlib license.  See the LICENSE file for details.
 
 using SpriterDotNet.Helpers;
-using System;
 
 namespace SpriterDotNet
 {

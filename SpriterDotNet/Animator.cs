@@ -4,9 +4,6 @@
 // of the zlib license.  See the LICENSE file for details.
 
 using SpriterDotNet.Providers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SpriterDotNet
 {
@@ -264,14 +261,14 @@ namespace SpriterDotNet
         }
 
         /// <summary>
-        /// Applies the transform to the concrete sprite isntance.
+        /// Applies the transform to the concrete sprite instance.
         /// </summary>
         protected virtual void ApplySpriteTransform(TSprite sprite, SpriterObject info)
         {
         }
 
         /// <summary>
-        /// Plays the concrete sound isntance.
+        /// Plays the concrete sound instance.
         /// </summary>
         protected virtual void PlaySound(TSound sound, SpriterSound info)
         {

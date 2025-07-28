@@ -4,7 +4,6 @@
 // of the zlib license.  See the LICENSE file for details.
 
 using Microsoft.Xna.Framework.Content.Pipeline;
-using System.IO;
 
 namespace SpriterDotNet.MonoGame.Importer
 {
